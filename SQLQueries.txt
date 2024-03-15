@@ -1,0 +1,54 @@
+2. De acuerdo a la base de datos creada en el punto 1, realice las siguientes operaciones utilizando
+lenguaje SQL:
+
+2.1. Obtener el listado de pedidos que se encuentran en proceso:
+
+	SELECT 
+    		code_transaction 'Codigo de pedido',
+    		client_name 'Nombre de cliente',
+    		date_of_request 'Fecha de solicitud',
+    		date_of_delivery 'Fecha de entrega',
+    		quantity_request_by_client 'Cantidad de unidades solicitadas'
+	FROM
+    		`co&text_com`.orders
+	WHERE
+    		state = 'in_process';
+
+2.2. Obtener el listado de clientes cuya cantidad de pedidos en el primer trimestre del 2021 haya sido superior a 10.
+
+    La consulta debe mostrar la siguiente información:
+    - Nombre del cliente
+    - Cantidad de pedidos realizados por el cliente
+Ordenar alfabéticamente por nombre de cliente y por cantidad de pedidos realizados, en orden descendente
+
+	SELECT 
+    		client_name 'Nombre de cliente', COUNT(id) 'Cantidad de pedidos'
+	FROM
+    		`co&text_com`.orders
+	WHERE
+    		date_of_request >= '2021-01-01 00:00:00'
+        	AND date_of_request < '2021-03-31 00:00:00'
+	GROUP BY client_id
+	HAVING COUNT(id) >= 10 ORDER BY count(id) DESC, client_name DESC;
+
+2.3. Obtener el listado de los 10 productos más vendidos en el primer semestre del 2021
+La consulta debe mostrar la siguiente información:
+    - Código del producto
+    - Nombre del producto
+    - Total cantidad solicitada
+
+	SELECT 
+    		product.code 'Codigo de producto',
+    		product.description 'Nombre de producto',
+    		SUM(`order`.quantity_request_by_client) 'Cantidad solicitada'
+	FROM
+    		`co&text_com`.orders `order`
+        		LEFT JOIN
+    		`co&text_com`.products product ON `order`.product_id = product.id
+	WHERE
+    		`order`.date_of_request > '2021-01-01 00:00:00'
+        	AND `order`.date_of_request < '2021-07-01 00:00:00'
+        	AND product.id IS NOT NULL
+	GROUP BY product.description
+	ORDER BY SUM(`order`.quantity_request_by_client) DESC
+	LIMIT 10;
